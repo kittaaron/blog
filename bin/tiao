@@ -1,0 +1,16 @@
+#!/usr/bin/expect -f
+set timeout 3
+set ip [lindex $argv 0 ]
+#换成自己的花名拼音
+set uname username
+#换成自己的通用密码
+set password passwd 
+#跳板机IP ssh权限
+spawn ssh -p 10022 $uname@$middleIp
+expect "*yes*" {send "yes\r"; exp_continue}
+expect "*password*" {send "$password\r"}
+##send "ssh -p10022 $uname@$ip\r"
+send "$ip\r"
+expect "*yes*" {send "yes\r"; exp_continue}
+expect "*password*" {send "$password\r"}
+interact
