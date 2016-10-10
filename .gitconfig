@@ -1,0 +1,14 @@
+[user]
+	name = taotao
+	email = liuhuiyu5201413@163.com
+[alias]
+	co = checkout
+	ci = commit
+	br = branch
+	di = diff
+	st = status
+	latest = log -n3
+[push]
+	default = matching
+[credential]
+	helper = store
