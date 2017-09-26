@@ -1,8 +1,48 @@
 spring data jpa
++ 如何配置使用（Java Config）
 
-- 核心：repository, entity
-  - @Entity 注解domain类，一般和DB的某张表对应
-  - 继承自org.springframework.data.jpa.repository.JpaRepository的子接口(经常直接继承CrudRepository)，接口中定义findBy等函数：如findByName(String name)默认根据传入的name从DB查询
+```JAVA
+@Configuration
+@EnableJpaRepositories
+@EnableTransactionManagement
+class ApplicationConfig {
+
+  @Bean
+  public DataSource dataSource() {
+
+    EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
+    return builder.setType(EmbeddedDatabaseType.HSQL).build();
+  }
+
+  @Bean
+  public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+
+    HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+    vendorAdapter.setGenerateDdl(true);
+
+    LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+    factory.setJpaVendorAdapter(vendorAdapter);
+    factory.setPackagesToScan("com.acme.domain");
+    factory.setDataSource(dataSource());
+    return factory;
+  }
+
+  @Bean
+  public PlatformTransactionManager transactionManager() {
+
+    JpaTransactionManager txManager = new JpaTransactionManager();
+    txManager.setEntityManagerFactory(entityManagerFactory());
+    return txManager;
+  }
+}
+```
+
++ 核心：repository, entity
+  + @Entity 注解domain类，一般和DB的某张表对应
+  + 继承自org.springframework.data.jpa.repository.JpaRepository的子接口(经常直接继承CrudRepository)，接口中定义findBy等函数：如findByName(String name)默认根据传入的name从DB查询
+
+##### 前面2步完成，spring data jpa在代码里就算配好了可以直接使用了。
+
 - 定义查询方法的3种方式
   - 通过方法名
   - 通过@Query注解。通过@Query注解时，sql中参数有2种方式定义
@@ -17,18 +57,20 @@ spring data jpa
           List<T> findAllByAttribute(String attribute);
           }
   - 通过@NamedQuery
-- 各种查询方式实现
+
+- 修改
   - 查询
     - 上面已经介绍了3种方式
   - 修改
     -     @Modifying
-          @Query("update User u set u.firstname = ?1 where u.lastname = ?2")
-          int setFixedFirstnameFor(String firstname, String lastname);
-  - 删除
+         @Query("update User u set u.firstname = ?1 where u.lastname = ?2")
+         int setFixedFirstnameFor(String firstname, String lastname);
+
 - 事务
   - @Transactional
 
 - 自定义Repository
+
 - Web Support
   - 通过 @EnableSpringDataWebSupport 支持Web属性
         @Configuration
@@ -45,6 +87,7 @@ spring data jpa
         return "userForm";
         }
         }
+
 - 没看懂的章节
   - Specifications
   - Example
